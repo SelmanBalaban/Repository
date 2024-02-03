@@ -1,0 +1,658 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+void hesaplaBitisTarihi(const char *baslangicTarihi, char *bitisTarihi);
+int sonKitapNumara;
+int sonKullaniciNumara;
+
+struct Kitap {
+    int numara;
+    char isim[50];
+    char yazar[50];
+    int sayfaSayisi;
+};
+
+struct Kullanici {
+    int numara;
+    char isim[50];
+    char soyisim[50];
+    char dogumTarihi[15];
+};
+
+struct Odunc {
+    int kullaniciNumara;
+    int kitapNumara;
+    char baslangicTarihi[15];
+    char bitisTarihi[15];
+};
+
+const char KITAPDosya[] = "kitaplar.txt";
+const char KULLANICIDosya[] = "kullanicilar.txt";
+const char ODUNCDosya[] = "odunc.txt";
+
+void kitapIslemleri();
+void kullaniciIslemleri();
+void oduncIslemleri();
+
+void kitapEkle();
+void kitapListele();
+void kitapGuncelle();
+void kitapSil();
+void kitapAra();
+
+void kullaniciEkle();
+void kullaniciListele();
+void kullaniciGuncelle();
+void kullaniciSil();
+void kullaniciAra();
+
+void oduncAl();
+void kitapGeriGetir();
+void oduncListele();
+bool kitapOduncAlinmisMi(int kitapNumara);
+bool kullaniciOduncAlmisMi(int kullaniciNumara) ;
+
+int main() {
+    int secim;
+
+    do {
+        printf("\n--- MENU ---\n");
+        printf("1. Kitap Islemleri\n");
+        printf("2. Kullanici Islemleri\n");
+        printf("3. Odunc Alma Islemleri\n");
+        printf("4. Cikis\n");
+        printf("Seciminizi yapiniz: ");
+        scanf("%d", &secim);
+
+        switch (secim) {
+            case 1:
+                kitapIslemleri();
+                break;
+            case 2:
+                kullaniciIslemleri();
+                break;
+            case 3:
+                oduncIslemleri();
+                break;
+            case 4:
+                printf("Programdan cikiliyor...\n");
+                break;
+            default:
+                printf("Gecersiz secim! Lutfen tekrar deneyin.\n");
+        }
+
+    } while (secim != 4);
+
+    return 0;
+}
+
+void kitapIslemleri() {
+    int secim;
+
+    do {
+        printf("\n--- KITAP ISLEMLERI ---\n");
+        printf("1. Kitap Ekleme\n");
+        printf("2. Kitap Listeleme\n");
+        printf("3. Kitap Guncelleme\n");
+        printf("4. Kitap Silme\n");
+        printf("5. Kitap Arama\n");
+        printf("6. Ana Menuye Don\n");
+        printf("Seciminizi yapiniz: ");
+        scanf("%d", &secim);
+
+        switch (secim) {
+            case 1:
+                kitapEkle();
+                break;
+            case 2:
+                kitapListele();
+                break;
+            case 3:
+                kitapGuncelle();
+                break;
+            case 4:
+                kitapSil();
+                break;
+            case 5:
+                kitapAra();
+                break;
+            case 6:
+                printf("Ana menuye donuluyor...\n");
+                break;
+            default:
+                printf("Gecersiz secim! Lutfen tekrar deneyin.\n");
+        }
+
+    } while (secim != 6);
+}
+
+void kullaniciIslemleri() {
+    int secim;
+
+    do {
+        printf("\n--- KULLANICI ISLEMLERI ---\n");
+        printf("1. Kullanici Ekleme\n");
+        printf("2. Kullanici Listeleme\n");
+        printf("3. Kullanici Guncelleme\n");
+        printf("4. Kullanici Silme\n");
+        printf("5. Kullanici Arama\n");
+        printf("6. Ana Menuye Don\n");
+        printf("Seciminizi yapiniz: ");
+        scanf("%d", &secim);
+
+        switch (secim) {
+            case 1:
+                kullaniciEkle();
+                break;
+            case 2:
+                kullaniciListele();
+                break;
+            case 3:
+                kullaniciGuncelle();
+                break;
+            case 4:
+                kullaniciSil();
+                break;
+            case 5:
+                kullaniciAra();
+                break;
+            case 6:
+                printf("Ana menuye donuluyor...\n");
+                break;
+            default:
+                printf("Gecersiz secim! Lutfen tekrar deneyin.\n");
+        }
+
+    } while (secim != 6);
+}
+
+void oduncIslemleri() {
+    int secim;
+
+    do {
+        printf("\n--- ODUNC ALMA ISLEMLERI ---\n");
+        printf("1. Odunc Alma\n");
+        printf("2. Kitap Geri Getirme\n");
+        printf("3. Odunc Listeleme\n");
+        printf("4. Ana Menuye Don\n");
+        printf("Seciminizi yapiniz: ");
+        scanf("%d", &secim);
+
+        switch (secim) {
+            case 1:
+                oduncAl();
+                break;
+            case 2:
+                kitapGeriGetir();
+                break;
+            case 3:
+                oduncListele();
+                break;
+            case 4:
+                printf("Ana menuye donuluyor...\n");
+                break;
+            default:
+                printf("Gecersiz secim! Lutfen tekrar deneyin.\n");
+        }
+
+    } while (secim != 4);
+}
+
+void kitapEkle() {
+    FILE *dosya;
+    struct Kitap yeniKitap;
+
+    dosya = fopen(KITAPDosya, "ab");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("Kitap Adi: ");
+    scanf("%s", yeniKitap.isim);
+
+    printf("Yazar Adi: ");
+    scanf("%s", yeniKitap.yazar);
+
+    printf("Sayfa Sayisi: ");
+    scanf("%d", &yeniKitap.sayfaSayisi);
+
+    yeniKitap.numara = ++sonKitapNumara;
+
+    fwrite(&yeniKitap, sizeof(struct Kitap), 1, dosya);
+
+    fclose(dosya);
+
+    printf("Kitap basariyla eklendi! Kitap Numarasi: %d\n", yeniKitap.numara);
+}
+
+
+void kitapListele() {
+    FILE *dosya;
+    struct Kitap okunanKitap;
+
+    dosya = fopen(KITAPDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("\n--- TUM KITAPLAR ---\n");
+    printf("%-10s %-30s %-20s %-15s\n", "Numara", "Isim", "Yazar", "Sayfa Sayisi");
+    while (fread(&okunanKitap, sizeof(struct Kitap), 1, dosya) == 1) {
+        printf("%-10d %-30s %-20s %-15d\n", okunanKitap.numara, okunanKitap.isim, okunanKitap.yazar, okunanKitap.sayfaSayisi);
+    }
+
+    fclose(dosya);
+}
+
+void kitapGuncelle() {
+    FILE *dosya;
+    struct Kitap guncellenecekKitap;
+    int guncellenecekNumara;
+
+    dosya = fopen(KITAPDosya, "rb+");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("Guncellenecek Kitap Numarasi: ");
+    scanf("%d", &guncellenecekNumara);
+
+    while (fread(&guncellenecekKitap, sizeof(struct Kitap), 1, dosya) == 1) {
+        if (guncellenecekKitap.numara == guncellenecekNumara) {
+            printf("Yeni Kitap Adi: ");
+            scanf("%s", guncellenecekKitap.isim);
+
+            printf("Yeni Yazar Adi: ");
+            scanf("%s", guncellenecekKitap.yazar);
+
+            printf("Yeni Sayfa Sayisi: ");
+            scanf("%d", &guncellenecekKitap.sayfaSayisi);
+
+            fseek(dosya, -sizeof(struct Kitap), SEEK_CUR);
+            fwrite(&guncellenecekKitap, sizeof(struct Kitap), 1, dosya);
+
+            fclose(dosya);
+
+            printf("Kitap basariyla guncellendi!\n");
+            return;
+        }
+    }
+
+    fclose(dosya);
+    printf("Guncellenecek kitap bulunamadi!\n");
+}
+
+void kitapSil() {
+    FILE *dosya;
+    FILE *tempDosya;
+    struct Kitap silinecekKitap;
+    int silinecekNumara;
+
+    dosya = fopen(KITAPDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("Silinecek Kitap Numarasi: ");
+    scanf("%d", &silinecekNumara);
+
+    tempDosya = fopen("temp.txt", "wb");
+    if (tempDosya == NULL) {
+        printf("Temp dosyasi olusturulamadi!\n");
+        fclose(dosya);
+        return;
+    }
+
+    while (fread(&silinecekKitap, sizeof(struct Kitap), 1, dosya) == 1) {
+        if (silinecekKitap.numara == silinecekNumara) {
+            if (kitapOduncAlinmisMi(silinecekNumara)) {
+                printf("Bu kitap su an odunc alinmis durumda ve silinemez!\n");
+                fclose(dosya);
+                fclose(tempDosya);
+                remove("temp.txt");
+                return;
+            }
+        } else {
+            fwrite(&silinecekKitap, sizeof(struct Kitap), 1, tempDosya);
+        }
+    }
+
+    fclose(dosya);
+    fclose(tempDosya);
+
+    remove(KITAPDosya);
+    rename("temp.txt", KITAPDosya);
+
+    printf("Kitap basariyla silindi!\n");
+}
+
+void kitapAra() {
+    FILE *dosya;
+    struct Kitap arananKitap;
+    char aramaKelimesi[50];
+
+    dosya = fopen(KITAPDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("Arama Kelimesi: ");
+    scanf("%s", aramaKelimesi);
+
+    printf("\n--- ARAMA SONUCU ---\n");
+    printf("%-10s %-30s %-20s %-15s\n", "Numara", "Isim", "Yazar", "Sayfa Sayisi");
+    while (fread(&arananKitap, sizeof(struct Kitap), 1, dosya) == 1) {
+        if (strstr(arananKitap.isim, aramaKelimesi) != NULL) {
+            printf("%-10d %-30s %-20s %-15d\n", arananKitap.numara, arananKitap.isim, arananKitap.yazar, arananKitap.sayfaSayisi);
+        }
+    }
+
+    fclose(dosya);
+}
+
+
+void kullaniciEkle() {
+    FILE *dosya;
+    struct Kullanici yeniKullanici;
+
+    dosya = fopen(KULLANICIDosya, "ab");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("Kullanici Adi: ");
+    scanf("%s", yeniKullanici.isim);
+
+    printf("Kullanici Soyadi: ");
+    scanf("%s", yeniKullanici.soyisim);
+
+    printf("Dogum Tarihi (GG.AA.YYYY): ");
+    scanf("%s", yeniKullanici.dogumTarihi);
+
+    yeniKullanici.numara = ++sonKullaniciNumara;
+
+    fwrite(&yeniKullanici, sizeof(struct Kullanici), 1, dosya);
+
+    fclose(dosya);
+
+    printf("Kullanici basariyla eklendi! Kullanici Numarasi: %d\n", yeniKullanici.numara);
+}
+
+bool kitapOduncAlinmisMi(int kitapNumara) {
+    FILE *dosya;
+    struct Odunc oduncKayit;
+
+    dosya = fopen(ODUNCDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return false;
+    }
+
+    while (fread(&oduncKayit, sizeof(struct Odunc), 1, dosya) == 1) {
+        if (oduncKayit.kitapNumara == kitapNumara) {
+            fclose(dosya);
+            return true;
+        }
+    }
+
+    fclose(dosya);
+    return false;
+}
+void kullaniciGuncelle() {
+    FILE *dosya;
+    struct Kullanici guncellenecekKullanici;
+    int guncellenecekNumara;
+
+    dosya = fopen(KULLANICIDosya, "rb+");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("Guncellenecek Kullanici Numarasi: ");
+    scanf("%d", &guncellenecekNumara);
+
+    while (fread(&guncellenecekKullanici, sizeof(struct Kullanici), 1, dosya) == 1) {
+        if (guncellenecekKullanici.numara == guncellenecekNumara) {
+            printf("Yeni Kullanici Adi: ");
+            scanf("%s", guncellenecekKullanici.isim);
+
+            printf("Yeni Kullanici Soyadi: ");
+            scanf("%s", guncellenecekKullanici.soyisim);
+
+            printf("Yeni Dogum Tarihi (GG.AA.YYYY): ");
+            scanf("%s", guncellenecekKullanici.dogumTarihi);
+
+            fseek(dosya, -sizeof(struct Kullanici), SEEK_CUR);
+            fwrite(&guncellenecekKullanici, sizeof(struct Kullanici), 1, dosya);
+
+            fclose(dosya);
+
+            printf("Kullanici basariyla guncellendi!\n");
+            return;
+        }
+    }
+
+    fclose(dosya);
+    printf("Guncellenecek kullanici bulunamadi!\n");
+}
+void kullaniciSil() {
+    FILE *dosya;
+    FILE *tempDosya;
+    struct Kullanici silinecekKullanici;
+    int silinecekNumara;
+
+    dosya = fopen(KULLANICIDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("Silinecek Kullanici Numarasi: ");
+    scanf("%d", &silinecekNumara);
+
+    tempDosya = fopen("temp_kullanici.txt", "wb");
+    if (tempDosya == NULL) {
+        printf("Temp dosyasi olusturulamadi!\n");
+        fclose(dosya);
+        return;
+    }
+
+    while (fread(&silinecekKullanici, sizeof(struct Kullanici), 1, dosya) == 1) {
+        if (silinecekKullanici.numara == silinecekNumara) {
+            if (kullaniciOduncAlmisMi(silinecekNumara)) {
+                printf("Bu kullanici su an odunc kitap almis durumda ve silinemez!\n");
+                fclose(dosya);
+                fclose(tempDosya);
+                remove("temp_kullanici.txt");
+                return;
+            }
+        } else {
+            fwrite(&silinecekKullanici, sizeof(struct Kullanici), 1, tempDosya);
+        }
+    }
+
+    fclose(dosya);
+    fclose(tempDosya);
+
+    remove(KULLANICIDosya);
+    rename("temp_kullanici.txt", KULLANICIDosya);
+
+    printf("Kullanici basariyla silindi!\n");
+}
+void kullaniciAra() {
+    FILE *dosya;
+    struct Kullanici arananKullanici;
+    char aramaKelimesi[50];
+
+    dosya = fopen(KULLANICIDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("Arama Kelimesi: ");
+    scanf("%s", aramaKelimesi);
+
+    printf("\n--- ARAMA SONUCU ---\n");
+    printf("%-10s %-30s %-30s %-15s\n", "Numara", "Isim", "Soyisim", "Dogum Tarihi");
+    while (fread(&arananKullanici, sizeof(struct Kullanici), 1, dosya) == 1) {
+        if (strstr(arananKullanici.isim, aramaKelimesi) != NULL || strstr(arananKullanici.soyisim, aramaKelimesi) != NULL) {
+            printf("%-10d %-30s %-30s %-15s\n", arananKullanici.numara, arananKullanici.isim, arananKullanici.soyisim, arananKullanici.dogumTarihi);
+        }
+    }
+
+    fclose(dosya);
+}
+#include <time.h>
+
+
+
+void oduncAl() {
+    FILE *dosya;
+    struct Odunc yeniOdunc;
+    int kullaniciNumara, kitapNumara;
+
+    dosya = fopen(ODUNCDosya, "ab");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("Kullanici Numarasi: ");
+    scanf("%d", &kullaniciNumara);
+
+
+
+    printf("Kitap Numarasi: ");
+    scanf("%d", &kitapNumara);
+
+
+
+    if (kitapOduncAlinmisMi(kitapNumara)) {
+        printf("Bu kitap su an odunc alinmis durumda ve tekrar odunc verilemez!\n");
+        fclose(dosya);
+        return;
+    }
+
+    printf("Baslangic Tarihi (GG.AA.YYYY): ");
+    scanf("%s", yeniOdunc.baslangicTarihi);
+
+
+
+    yeniOdunc.kullaniciNumara = kullaniciNumara;
+    yeniOdunc.kitapNumara = kitapNumara;
+
+    fwrite(&yeniOdunc, sizeof(struct Odunc), 1, dosya);
+
+    fclose(dosya);
+
+    printf("Odunc alma islemi basariyla gerceklesti!\n");
+}
+
+
+
+
+
+void kitapGeriGetir() {
+    FILE *dosya;
+    FILE *tempDosya;
+    struct Odunc geriGetirilecekOdunc;
+    int kitapNumara;
+
+    dosya = fopen(ODUNCDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    tempDosya = fopen("temp_odunc.txt", "wb");
+    if (tempDosya == NULL) {
+        printf("Temp dosyasi olusturulamadi!\n");
+        fclose(dosya);
+        return;
+    }
+
+    printf("Geri Getirilecek Kitap Numarasi: ");
+    scanf("%d", &kitapNumara);
+
+
+    while (fread(&geriGetirilecekOdunc, sizeof(struct Odunc), 1, dosya) == 1) {
+        if (geriGetirilecekOdunc.kitapNumara == kitapNumara) {
+            printf("Kitap basariyla geri alindi!\n");
+        } else {
+            fwrite(&geriGetirilecekOdunc, sizeof(struct Odunc), 1, tempDosya);
+        }
+    }
+
+    fclose(dosya);
+    fclose(tempDosya);
+
+    remove(ODUNCDosya);
+    rename("temp_odunc.txt", ODUNCDosya);
+}
+void oduncListele() {
+    FILE *dosya;
+    struct Odunc oduncKayit;
+
+    dosya = fopen(ODUNCDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("\n--- ODUNC ALINAN KITAPLAR ---\n");
+    printf("%-15s %-15s %-15s %-15s\n", "Kullanici Numara", "Kitap Numara", "Baslangic Tarihi", "Bitis Tarihi");
+    while (fread(&oduncKayit, sizeof(struct Odunc), 1, dosya) == 1) {
+        printf("%-15d %-15d %-15s %-15s\n", oduncKayit.kullaniciNumara, oduncKayit.kitapNumara, oduncKayit.baslangicTarihi, oduncKayit.baslangicTarihi);
+    }
+
+    fclose(dosya);
+}
+void kullaniciListele() {
+    FILE *dosya;
+    struct Kullanici okunanKullanici;
+
+    dosya = fopen(KULLANICIDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return;
+    }
+
+    printf("\n--- TUM KULLANICILAR ---\n");
+    printf("%-10s %-30s %-30s %-15s\n", "Numara", "Isim", "Soyisim", "Dogum Tarihi");
+    while (fread(&okunanKullanici, sizeof(struct Kullanici), 1, dosya) == 1) {
+        printf("%-10d %-30s %-30s %-15s\n", okunanKullanici.numara, okunanKullanici.isim, okunanKullanici.soyisim, okunanKullanici.dogumTarihi);
+    }
+
+    fclose(dosya);
+}
+
+bool kullaniciOduncAlmisMi(int kullaniciNumara) {
+    FILE *dosya;
+    struct Odunc oduncKayit;
+
+    dosya = fopen(ODUNCDosya, "rb");
+    if (dosya == NULL) {
+        printf("Dosya acilamadi!\n");
+        return false;
+    }
+
+    while (fread(&oduncKayit, sizeof(struct Odunc), 1, dosya) == 1) {
+        if (oduncKayit.kullaniciNumara == kullaniciNumara) {
+            fclose(dosya);
+            return true;
+        }
+    }
+
+    fclose(dosya);
+    return false;
+}
